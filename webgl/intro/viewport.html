@@ -1,0 +1,61 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">
+        <meta name="viewport" content="device-width">
+        <title>Como Carregar uma imagem no Canvas - Sem Tratamento Especial</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script>
+            function getGLContext(){
+                var canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                return context;
+            }
+
+            function loadImage(){
+                var path = document.getElementById("imgSrc").value;
+                
+                var img = new Image();
+                img.src = path;
+                
+                img.onload = function(){
+                    var backCanvas = document.createElement("canvas");
+                    backCanvas.width = img.width;
+                    backCanvas.height = img.height;
+                    var backContext = backCanvas.getContext("2d");
+                    var backData = backContext.getImageData(0, 0, backCanvas.width, backCanvas.height);                    
+                    backContext.drawImage(img, 0, 0);
+                    
+                    var imgDt = context.createImageData(backContext.canvas.width, backContext.canvas.height);
+                    
+                    
+                    var backImgDt = backContext.getImageData(0, 0, backCanvas.width, backCanvas.height);
+                    var max = backContext.canvas.width * backContext.canvas.height * 4; 
+                    for (var i = 0; i < max; i = i + 4) {  
+                        imgDt.data[i] = backImgDt.data[i] * red;
+                        imgDt.data[i+1] = backImgDt.data[i+1] * green;
+                        imgDt.data[i+2] = backImgDt.data[i+2] * blue;
+                        imgDt.data[i+3] = backImgDt.data[i+3];
+                    }
+                    backContext.putImageData(imgDt, 0, 0);
+                    context.drawImage(backCanvas, 0, 0, backCanvas.width, backCanvas.height, 0, 0, context.canvas.width, context.canvas.height);
+                }
+            }
+
+        </script>
+    </head>     
+    <body onload="getGLContext();" style="width:100%">
+        <h1>Curso de Computação Gráfica - Introdução</h1>         
+        <p>     Imagens Digitais                 </p>     
+        <canvas id="myCanvas" width="800" height="600">
+        ...
+        </canvas>
+        <fieldset>
+            <label for="imgSrc">URL da Imagem</label>
+            <input id="imgSrc" type="text" style="width:600px" value="https://cdn.mensagenscomamor.com/resize/400x225/content/images/int/imagens_de_deus.jpg"/>
+            <button onclick="loadImage()">Load Image</button>
+        </fieldset>
+    </body> 
+</html> 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Introdução ao WebGL</title>
+    <style type="text/css">canvas {border: 2px dotted blue;}</style>
+    <script>
+        var gl = null;
+        function getGLContext(){
+            var canvas = document.getElementById("meucanvas");
+            if (canvas==null){
+                alert("Canvas ausente!!!");
+                return;
+            } 
+            var names = ["webgl", "experimental-webgl", "webkit-3d",
+                        "moz-webgl"];
+            for (var i = 0; i < names.length; ++i){
+                try{
+                    gl = canvas.getContext(names[i]);
+                } catch(e){}
+                if (gl) break;
+            }
+            if (gl == null) {
+                alert("WebGL não é suportado!!!");
+            } else {
+                alert("Bacana!!! WebGL funciona!");
+            }
+        }
+    </script>
+</head>
+<body onload="getGLContext();">
+    <canvas id="meucanvas" width="800" height="600">
+        Este navegador não suporta HTML5
+    </canvas>
+</body>
+</html>

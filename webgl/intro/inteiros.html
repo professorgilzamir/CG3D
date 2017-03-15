@@ -1,0 +1,34 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">         
+        <title>Brincando com os inteiros</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script>
+            function op() {
+                var n1 = parseInt(document.getElementById('op1').innerHTML, 2);
+                var n2 = parseInt(document.getElementById('op2').innerHTML, 2);
+                var n3 = n1 | n2;
+                alert(n3);
+                document.getElementById("resultado").innerHTML = parseInt(n3, 2) + "";
+            }
+        </script>
+        
+        
+        
+    </head>     
+    <body>
+        <h1>Operadores Bitwise</h1>         
+        <p>     Inteiros                 </p>
+        
+        <div>
+            <textarea id="op1">11111111111111111111111111111111</textarea><label for="display">OR</label><textarea id="op2">00000000000000000000000000000000</textarea>
+            <button onclick="op()">EXECUTE</button>
+        </div>
+        <div>
+            <textarea id="resultado"></textarea>
+        </div>
+    </body> 
+</html> 

@@ -1,0 +1,145 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">         
+        <title>Como Carregar uma imagem no Canvas - Sem Tratamento Especial</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script>
+            function getGLContext(){
+                var canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                return context;
+            }
+
+            function loadImage(){
+                var w = context.canvas.width;
+                var h = context.canvas.height;
+                context.clearRect(0, 0, w, h);
+                var width = w * 4;
+                var height = h * 4;
+                var circles = 100;
+                var radio = 10;
+                var radio2 = 100;
+                var circle = [];
+                var foreground=[];
+                
+                for (var n = 0; n < circles; n++) {
+                    circle[n] = [n+100, n+100];
+                    foreground[n] = 90 + n%10;    
+                }
+                
+
+                var imgDt = context.getImageData(0, 0, width, height);
+                max = imgDt.height * imgDt.width * 4;
+                var background = 1;
+               
+                for (var i = 0; i < height; i = i + 1){
+                   for (var j = 0; j < width; j = j + 1) {
+                       
+                       var idx = 4 * (w * i + j);
+                       
+                       for (var c = 0; c < circles; c++) {
+                           var x1 = circle[c][0];
+                           var y1 = circle[c][1];
+
+                           var d1 = (i-x1)*(i-x1) + (j-y1)*(j-y1);
+
+                           if (d1 < radio2) {
+                               imgDt.data[idx]=foreground[c];
+                               imgDt.data[idx+1]=foreground[c];
+                               imgDt.data[idx+2]=foreground[c];
+                           }
+                       }
+                       
+                       imgDt.data[idx+3]=255;
+                   }
+                }
+                try{
+                   context.putImageData(imgDt, 0, 0);
+                } catch(e){
+                   alert(e);
+                }
+            }
+
+            
+            function loadImageMapColor(){
+            
+                var w = context.canvas.width;
+                var h = context.canvas.height;
+                context.clearRect(0, 0, w, h);
+                
+                var width = w * 4;
+                var height = h * 4;
+                
+                var circles = 100;
+                       
+                
+                var map = [];
+            
+                var imgDt = context.getImageData(0, 0, width, height);
+                max = imgDt.height * imgDt.width * 4;
+            
+                
+                var radio = 10;
+                var radio2 = 100;
+                var circle = [];
+                var foreground=[];
+                
+                for (var n = 0; n < circles; n++) {
+                    circle[n] = [n+100, n+100];
+                    foreground[n] = 90 + n%10;     
+                }
+
+                var res = 10;
+                for (var r = 0; r < 256; r++) {
+                    var rc = foreground[r];
+                    var gc = 255 - (res*foreground[r]) % 255;
+                    map[r] = [rc, gc, gc];
+                }
+                
+                var imgDt = context.getImageData(0, 0, width, height);
+                max = imgDt.height * imgDt.width * 4;
+                var background = 1;
+               
+                for (var i = 0; i < height; i = i + 1){
+                   for (var j = 0; j < width; j = j + 1) {
+                       for (var c = 0; c < circles; c++){
+                           var idx = 4 * (w * i + j);
+
+                           var x1 = circle[c][0];
+                           var y1 = circle[c][1];
+
+                           var d1 = (i-x1)*(i-x1) + (j-y1)*(j-y1);
+
+
+                           
+                           if (d1 < radio2) {
+                               imgDt.data[idx]=map[foreground[c]][0];
+                               imgDt.data[idx+1]=map[foreground[c]][1];
+                               imgDt.data[idx+2]=map[foreground[c]][2];
+                           }
+                       }
+                       
+                       imgDt.data[idx+3]=255;
+                   }
+                }
+                try{
+                   context.putImageData(imgDt, 0, 0);
+                } catch(e){
+                   alert(e);
+                }
+            }
+        </script>
+    </head>     
+    <body onload="getGLContext();">
+        <h1>Curso de Computação Gráfica - Introdução</h1>         
+        <p>     Imagens Digitais </p>     
+        <canvas id="myCanvas" width="800" height="600">...</canvas>
+        <fieldset>
+            <button onclick="loadImage()">Gray Scale</button>
+            <button onclick="loadImageMapColor()">Map Color</button>
+        </fieldset>
+    </body> 
+</html> 

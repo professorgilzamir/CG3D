@@ -1,0 +1,60 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">         
+        <title>Hello World</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script>
+            function getGLContext(){
+                var canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                //  updateDraw();
+                //                requestAnimationFrame(updateDraw);
+                return context;
+            }
+            
+            function updateDraw(background) {
+               //context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                var imgDt = context.getImageData(0,0,500,500);
+                max = imgDt.height * imgDt.width * 4;
+                for (i = 0; i < max; i = i +  4){
+                   imgDt.data[i] = background[0];
+                   imgDt.data[i+1] = background[1];
+                   imgDt.data[i+2] = background[2];
+                   imgDt.data[i+3] = background[3];
+                }
+                try{
+                   context.putImageData(imgDt, 0, 0);
+                } catch(e){
+                   alert(e);		
+                }
+            //requestAnimationFrame(updateDraw)
+            }
+
+            function drawRed(){
+                updateDraw([255, 0.0, 0.0, 255]);
+            }
+
+            function drawBlue(){
+                updateDraw([0, 0, 255, 255]);
+            }
+    
+            function drawGreen() {
+                updateDraw([0, 255, 0, 255]);
+            }
+            
+        </script>
+    </head>     
+    <body onload="getGLContext();">
+        <h1>Curso de Computação Gráfica - Introdução</h1>         
+        <p>     Imagens Digitais                 </p>     
+        <canvas id="myCanvas" width="500" height="500">
+        ...
+        </canvas>
+        <button onclick="drawRed();">RED</button>
+        <button onclick="drawGreen();">GREEN</button>
+        <button onclick="drawBlue();">BLUE</button>
+    </body> 
+</html> 
