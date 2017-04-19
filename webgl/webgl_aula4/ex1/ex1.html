@@ -7,10 +7,13 @@
     <script id="vxShader" type="shader/vx-shader">
 	    attribute vec3 aVertexPosition;
 	    attribute vec4 aVertexColor;
+	    uniform mat4 uModel;
+        uniform mat4 uView;
+        uniform mat4 uProjection;
 	    varying vec4 vColor;
 	    void main(void) {
 	        vColor = aVertexColor;
-	        gl_Position = vec4(aVertexPosition,1.0);
+	        gl_Position = uProjection * uView * uModel * vec4(aVertexPosition,1.0);
 	        gl_PointSize = 10.0;
 	    }
     </script>
@@ -25,6 +28,7 @@
         }
     </script>
     <script language="JavaScript" src="lib/jquery-3.2.0.min.js"></script>
+    <script language="JavaScript" src="lib/gl-matrix.js"></script>
     <script language="JavaScript" src="js/utils.js"></script>
     <script language="JavaScript" src="js/app.js"></script>
 </head>
@@ -33,7 +37,7 @@
         Este navegador não suporta HTML5
     </canvas>
     <button onclick="loadModel();"> Draw Object </button>
-
+    <button onclick="update();"> Rotate Z </button>
     <fieldset>
 	    <label for="rdPrimitiveTriangles">TRIANGLES</label> 
 	    <input type="radio" checked="true" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitiveTriangles" value="TRIANGLES">

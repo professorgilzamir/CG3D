@@ -9,11 +9,39 @@ var vxColor = null;
 var width = 0;
 var height = 0;
 var primitiveType = null;
+var modelTransform = null;
+var viewTransform = null;
+var projectionTransform = null;
+var obj = null;
 
 
-function createBuffers(obj3d) {
+var ang = 0.0;
+
+
+function init(obj3d){
+    obj = obj3d;
+    //RECUPERA OS SHADES E CRIA UM PROGRAMA PARA ESTES SHADERS
+    var vx_str = document.getElementById("vxShader").innerText;
+
+    var fg_str = document.getElementById("fgShader").innerText;
+
+    prg = initProgram(gl, getVxShader(gl, vx_str), getFgShader(gl, fg_str));
+    
+    //INICIO:CRIA BUFFERS E ENVIA DADOS PARA ELES
+    initObjectData(obj3d);
+    //FIM:CRIA BUFFERS E ENVIA DADOS PARA ELES
+}
+
+function initObjectData(obj3d) {
     prg.vertexColor = gl.getAttribLocation(prg, "aVertexColor")
     prg.vertexPosition = gl.getAttribLocation(prg, "aVertexPosition");
+    prg.modelTransform = gl.getUniformLocation(prg, "uModel");
+    prg.viewTransform = gl.getUniformLocation(prg, "uView");
+    prg.projectionTransform = gl.getUniformLocation(prg, "uProjection");
+ 
+    modelTransform = mat4.create();
+    viewTransform = mat4.create();
+    projectionTransform = mat4.create();
 
     if (primitiveType == null) {
         primitiveType = gl.TRIANGLES;
@@ -36,16 +64,31 @@ function createBuffers(obj3d) {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
-function draw(obj3d){
+function draw(){
 
-    var vx_str = document.getElementById("vxShader").innerText;
 
-    var fg_str = document.getElementById("fgShader").innerText;
+    mat4.identity(modelTransform);
+    mat4.identity(viewTransform);
+    mat4.identity(projectionTransform);
 
-    prg = initProgram(gl, getVxShader(gl, vx_str), getFgShader(gl, fg_str));
-    
-    createBuffers(obj3d);
+    //INICIO::DEFINE TRANSFORMACOES NO MODELO
+    mat4.scale(modelTransform, modelTransform, [0.1, 0.1, 0.1]);
+    mat4.rotate(modelTransform, modelTransform, ang, [0.0, 0.0, 1.0]);
+    gl.uniformMatrix4fv(prg.modelTransform, false, modelTransform);
+    //FIM::DEFINE TRANSFORMACOES NO MODEL
 
+    //INICIO::DEFINE TRANSFORMACOES DE CAMERA
+    mat4.lookAt(viewTransform, [0, 0, 5], [0, 0, -1], [0, 1, 0])
+    gl.uniformMatrix4fv(prg.viewTransform, false, viewTransform);
+    //FIM::DEFINE TRANSFORMACOES DE CAMERA
+
+    //INICIO::DEFINE TRANSFORMACOES DE PROJECAO
+    mat4.perspective(projectionTransform, Math.PI/4, 1.0, 0.001, 10000);
+    //mat4.ortho(projectionTransform, -1.0, 1.0, -1.0, 1.0, 0.01, 1000.0);
+    gl.uniformMatrix4fv(prg.projectionTransform, false, projectionTransform);
+    //FIM::DEFINE TRANSFORMACOES DE PROJECAO
+
+    //INICIO:ATIVA OS BUFFERS PARA ENVIAR OS DADOS PARA SEREM DESENHADOS
     gl.bindBuffer(gl.ARRAY_BUFFER, vxColor);
     gl.vertexAttribPointer(prg.vertexColor, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(prg.vertexColor);
@@ -55,7 +98,18 @@ function draw(obj3d){
     gl.enableVertexAttribArray(prg.vertexPosition);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.drawElements(primitiveType, obj3d.indices.length, gl.UNSIGNED_SHORT,0);
+    //FIM:ATIVA OS BUFFERS PARA ENVIAR OS DADOS PARA SEREM DESENHADOS
+
+    //EXECUTA A PRIMITIVA DE DESENHO PARA GRUPOS DE DADOS  
+    gl.drawElements(primitiveType, obj.indices.length, gl.UNSIGNED_SHORT,0);
+}
+
+function update() {
+    ang = ang+1.0;
+    if (ang > Math.PI){
+        ang = 0.0;
+    }
+    draw();
 }
 
 function selectPrimitiveType(option) {
@@ -73,7 +127,8 @@ function selectPrimitiveType(option) {
 }
 
 function successHandler(url, model){
-    draw(model);
+    init(model);
+    draw();
 }
 
 function errorHandler(error){

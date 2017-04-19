@@ -35,10 +35,10 @@ function getVxShader(){
 function getFgShader() {
     var str = 
         '#ifdef GL_ES\n' +
-        'precision highp float;\n' +
+        'precision highp float\n' +
         '#endif\n' +
-        'varying vec4 vColor;' + 
-        'void main(void) {\n' +
+        'varying vec4 vColor' + 
+        'void main(void) \n' +
             'gl_FragColor = vColor;' +
         '}\n';
 
@@ -109,7 +109,7 @@ function setData() {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
-    //Quad Color
+    //Color
     colors = [1.0, 0.0, 0.0, 1.0, 
               0.0, 1.0, 0.0, 1.0,
               0.0, 0.0, 1.0, 1.0,
