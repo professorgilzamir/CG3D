@@ -21,9 +21,9 @@ var ang = 0.0;
 function init(obj3d){
     obj = obj3d;
     //RECUPERA OS SHADES E CRIA UM PROGRAMA PARA ESTES SHADERS
-    var vx_str = document.getElementById("vxShader").innerText;
+    var vx_str = document.getElementById("vxShader").text;
 
-    var fg_str = document.getElementById("fgShader").innerText;
+    var fg_str = document.getElementById("fgShader").text;
 
     prg = initProgram(gl, getVxShader(gl, vx_str), getFgShader(gl, fg_str));
     
