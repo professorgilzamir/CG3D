@@ -12,8 +12,9 @@ var primitiveType = null;
 var modelTransform = null;
 var viewTransform = null;
 var projectionTransform = null;
+var materialList;
 var obj = null;
-
+var obj3d = null;
 
 var angx = 0.0, angy = 0.0, angz = 0.0;
 
@@ -29,6 +30,9 @@ function init(obj3d){
     
     //INICIO:CRIA BUFFERS E ENVIA DADOS PARA ELES
     initObjectData(obj3d);
+
+    gl.enable(gl.DEPTH_TEST);
+    //gl.depthFunc(gl.LESS);
     //FIM:CRIA BUFFERS E ENVIA DADOS PARA ELES
 }
 
@@ -54,17 +58,22 @@ function initObjectData(obj3d) {
 
     //IBO
     ibo = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obj3d.indices), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
+    //buffer de cor
     vxColor = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vxColor);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj3d.colors), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
-function draw(){
+function draw(component){
+    //define os indices do componente
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(component.indices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+
+    //define a cor do componente
+    gl.bindBuffer(gl.ARRAY_BUFFER, vxColor);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(component.diffuse_color), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 
     mat4.identity(modelTransform);
@@ -103,22 +112,22 @@ function draw(){
     //FIM:ATIVA OS BUFFERS PARA ENVIAR OS DADOS PARA SEREM DESENHADOS
 
     //EXECUTA A PRIMITIVA DE DESENHO PARA GRUPOS DE DADOS  
-    gl.drawElements(primitiveType, obj.indices.length, gl.UNSIGNED_SHORT,0);
+    gl.drawElements(primitiveType, component.indices.length, gl.UNSIGNED_SHORT,0);
 }
 
 function updateZ() {
     angz = angz+0.1;
-    draw();
+    drawComponents();
 }
 
 function updateX() {
     angx = angx+0.1;
-    draw();
+    drawComponents();
 }
 
 function updateY() {
     angy = angy+0.1;
-    draw();
+    drawComponents();
 }
 
 function selectPrimitiveType(option) {
@@ -135,15 +144,25 @@ function selectPrimitiveType(option) {
 	}
 }
 
-function successHandler(url, model){
-    init(model);
-    draw();
+
+function drawComponents(){
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    for (component in obj["obj"]){
+        draw(obj["obj"][component]);
+    }
 }
 
-function errorHandler(error){
+function successModelHandler(url, model){
+    obj3d = model;
+    init(obj3d)
+    drawComponents();
+}
+
+function errorModelHandler(error){
     alert("Error status: " + error.status + " : " + error.message);
 }
 
 function loadModel() {
-    loadFile("models/cubo.json", successHandler, errorHandler);   
+    loadFile("models/cubo.json", successModelHandler, errorModelHandler);
 }
+
