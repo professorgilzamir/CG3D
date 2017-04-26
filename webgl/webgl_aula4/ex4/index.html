@@ -7,14 +7,13 @@
     <script id="vxShader" type="shader/vx-shader">
 	    attribute vec3 aVertexPosition;
 	    attribute vec4 aVertexColor;
-	    uniform mat4 uModel;
-        uniform mat4 uView;
+	    uniform mat4 uModelView;
         uniform mat4 uProjection;
-        uniform mat4 uRotateView; 
 	    varying vec4 vColor;
+
 	    void main(void) {
 	        vColor = aVertexColor;
-	        gl_Position = uProjection * uView * uModel * vec4(aVertexPosition,1.0);
+	        gl_Position = uProjection * uModelView * vec4(aVertexPosition, 1.0);
 	        gl_PointSize = 10.0;
 	    }
     </script>
@@ -37,17 +36,25 @@
     <canvas id="meucanvas" width="600" height="480">
         Este navegador não suporta HTML5
     </canvas>
-    <button onclick="loadModel();"> Draw Object </button>
-    <button onclick="updateZ();"> Rotate Z </button>
-    <button onclick="updateX();"> Rotate X </button>
-    <button onclick="updateY();"> Rotate Y </button>
+    <fieldset>
+        <button onclick="loadModel();"> Draw Object </button>
+    </fieldset>
     <fieldset>
 	    <label for="rdPrimitiveTriangles">TRIANGLES</label> 
 	    <input type="radio" checked="true" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitiveTriangles" value="TRIANGLES">
+        <!--
 	   	<label for="rdPrimitiveLines">LINES</label>
 	    <input type="radio" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitiveLines" value="LINES">
-	   	<label for="rdPrimitivePoints">POINTS</label>
+	   	-->
+        <label for="rdPrimitivePoints">POINTS</label>
 	    <input type="radio" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitivePoints" value="POINTS">
+    </fieldset>
+    <fieldset>
+        <button onclick="rotateX();"> Rotate X </button>
+        <button onclick="rotateY();"> Rotate Y </button>
+        <button onclick="rotateZ();"> Rotate Z </button>
+        <label for="rgDistance">Eye distance</label>
+        <input type="range" value="50" onchange="changeEyePosition(this);">
     </fieldset>
 </body>
 </html>

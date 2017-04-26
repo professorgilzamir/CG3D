@@ -12,6 +12,8 @@ var primitiveType = null;
 var modelTransform = null;
 var viewTransform = null;
 var projectionTransform = null;
+var rotateView = null;
+var materialList;
 var obj = null;
 var obj3d = null;
 
@@ -41,11 +43,13 @@ function initObjectData(obj3d) {
     prg.modelTransform = gl.getUniformLocation(prg, "uModel");
     prg.viewTransform = gl.getUniformLocation(prg, "uView");
     prg.projectionTransform = gl.getUniformLocation(prg, "uProjection");
-    
+    prg.rotateView = gl.getUniformLocation(prg, "uRotateView");
+ 
     modelTransform = mat4.create();
     viewTransform = mat4.create();
     projectionTransform = mat4.create();
-    
+    rotateView = mat4.create();
+
     if (primitiveType == null) {
         primitiveType = gl.TRIANGLES;
     }
@@ -78,14 +82,19 @@ function draw(component){
     mat4.identity(modelTransform);
     mat4.identity(viewTransform);
     mat4.identity(projectionTransform);
+    mat4.identity(rotateView);
 
     //INICIO::DEFINE TRANSFORMACOES NO MODELO
     mat4.scale(modelTransform, modelTransform, [0.3, 0.3, 0.3]);
-    mat4.rotate(modelTransform, modelTransform, angz, [0.0, 0.0, 1.0]);
-    mat4.rotate(modelTransform, modelTransform, angy, [0.0, 1.0, 0.0]);
-    mat4.rotate(modelTransform, modelTransform, angx, [1.0, 0.0, 0.0]);
     gl.uniformMatrix4fv(prg.modelTransform, false, modelTransform);
     //FIM::DEFINE TRANSFORMACOES NO MODEL
+
+    //INICIO::DEFINE ROTACAO EM RELACAO A VIEW
+    mat4.rotate(rotateView, rotateView, angz, [0.0, 0.0, 1.0]);
+    mat4.rotate(rotateView, rotateView, angy, [0.0, 1.0, 0.0]);
+    mat4.rotate(rotateView, rotateView, angx, [1.0, 0.0, 0.0]);
+    gl.uniformMatrix4fv(prg.rotateView, false, rotateView);
+    //FIM::DEFINE ROTACAO EM RELACAO A VIEW
 
     //INICIO::DEFINE TRANSFORMACOES DE CAMERA
     mat4.lookAt(viewTransform, [0, 0, 5], [0, 0, -1], [0, 1, 0])

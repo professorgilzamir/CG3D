@@ -9,9 +9,13 @@ var vxColor = null;
 var width = 0;
 var height = 0;
 var primitiveType = null;
-var modelTransform = null;
-var viewTransform = null;
+var modelViewTransform = null;
 var projectionTransform = null;
+var rotation = null;
+var translation = null;
+var rotate = null;
+var translate = null;
+var materialList;
 var obj = null;
 var obj3d = null;
 
@@ -38,13 +42,16 @@ function init(obj3d){
 function initObjectData(obj3d) {
     prg.vertexColor = gl.getAttribLocation(prg, "aVertexColor")
     prg.vertexPosition = gl.getAttribLocation(prg, "aVertexPosition");
-    prg.modelTransform = gl.getUniformLocation(prg, "uModel");
-    prg.viewTransform = gl.getUniformLocation(prg, "uView");
+    prg.modelViewTransform = gl.getUniformLocation(prg, "uModelView");
     prg.projectionTransform = gl.getUniformLocation(prg, "uProjection");
     
-    modelTransform = mat4.create();
-    viewTransform = mat4.create();
+    modelViewTransform = mat4.create();
     projectionTransform = mat4.create();
+    rotation = mat4.create();
+    translation = mat4.create();
+    mat4.identity(rotation);
+    mat4.identity(translation);
+    translation[14] = -5;
     
     if (primitiveType == null) {
         primitiveType = gl.TRIANGLES;
@@ -74,23 +81,18 @@ function draw(component){
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(component.diffuse_color), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-
-    mat4.identity(modelTransform);
-    mat4.identity(viewTransform);
+    mat4.identity(modelViewTransform);
     mat4.identity(projectionTransform);
 
-    //INICIO::DEFINE TRANSFORMACOES NO MODELO
-    mat4.scale(modelTransform, modelTransform, [0.3, 0.3, 0.3]);
-    mat4.rotate(modelTransform, modelTransform, angz, [0.0, 0.0, 1.0]);
-    mat4.rotate(modelTransform, modelTransform, angy, [0.0, 1.0, 0.0]);
-    mat4.rotate(modelTransform, modelTransform, angx, [1.0, 0.0, 0.0]);
-    gl.uniformMatrix4fv(prg.modelTransform, false, modelTransform);
-    //FIM::DEFINE TRANSFORMACOES NO MODEL
+    //INICIO::DEFINE TRANSFORMACOES MODELVIEW
 
-    //INICIO::DEFINE TRANSFORMACOES DE CAMERA
-    mat4.lookAt(viewTransform, [0, 0, 5], [0, 0, -1], [0, 1, 0])
-    gl.uniformMatrix4fv(prg.viewTransform, false, viewTransform);
-    //FIM::DEFINE TRANSFORMACOES DE CAMERA
+
+
+    mat4.multiply(modelViewTransform, modelViewTransform, translation);
+    mat4.multiply(modelViewTransform, modelViewTransform, rotation);
+    gl.uniformMatrix4fv(prg.modelViewTransform, false, modelViewTransform);
+    //FIM::DEFINE TRANSFORMACOES MODELVIEW
+
 
     //INICIO::DEFINE TRANSFORMACOES DE PROJECAO
     mat4.perspective(projectionTransform, Math.PI/4, 1.0, 0.001, 10000);
@@ -114,18 +116,18 @@ function draw(component){
     gl.drawElements(primitiveType, component.indices.length, gl.UNSIGNED_SHORT,0);
 }
 
-function updateZ() {
-    angz = angz+0.1;
+function rotateZ() {
+    mat4.rotate(rotation, rotation, 0.1, [0, 0, 1]);
     drawComponents();
 }
 
-function updateX() {
-    angx = angx+0.1;
+function rotateX() {
+    mat4.rotate(rotation, rotation, 0.1, [1, 0, 0]);
     drawComponents();
 }
 
-function updateY() {
-    angy = angy+0.1;
+function rotateY() {
+    mat4.rotate(rotation, rotation, 0.1, [0, 1, 0]);
     drawComponents();
 }
 
@@ -163,5 +165,15 @@ function errorModelHandler(error){
 
 function loadModel() {
     loadFile("models/cubo.json", successModelHandler, errorModelHandler);
+}
+
+function changeEyePosition(source){
+    if (!translation){
+        alert("Draw is need for this operation!!!");
+        source.value = 50;
+        return;
+    }
+    translation[14] = -source.value * 0.1;
+    drawComponents();
 }
 
