@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Introdução ao WebGL</title>
+    <link href="css/main.css" rel="stylesheet">
+    <script id="vxShader" type="shader/vx-shader">
+	    attribute vec3 aVertexPosition;
+	    attribute vec4 aVertexColor;
+	    uniform mat4 uModelView;
+        uniform mat4 uProjection;
+	    varying vec4 vColor;
+
+	    void main(void) {
+	        vColor = aVertexColor;
+	        gl_Position = uProjection * uModelView * vec4(aVertexPosition, 1.0);
+	        gl_PointSize = 10.0;
+	    }
+    </script>
+
+    <script id="fgShader" type="shader/fg-shader">
+        #ifdef GL_ES
+        precision highp float;
+        #endif
+        varying vec4 vColor;
+        void main(void) {
+            gl_FragColor = vColor;
+        }
+    </script>
+    <script language="JavaScript" src="lib/jquery-3.2.0.min.js"></script>
+    <script language="JavaScript" src="lib/gl-matrix.js"></script>
+    <script language="JavaScript" src="js/utils.js"></script>
+    <script language="JavaScript" src="js/app.js"></script>
+</head>
+<body onload="gl = getGLContext('meucanvas');">
+    <div>
+        <canvas id="meucanvas" width="600" height="480">
+            Este navegador não suporta HTML5
+        </canvas>
+        <label for="matrixCode">ModelView Matrix</label>
+        <textarea id="matrixCode" rows="4" cols="28"></textarea>
+        <div>
+            <label>World</label><input type="radio" checked="true" onchange="reset();" id="rdW" name="reference" value="w"></input>
+            <label>Camera</label><input onchange="reset();" type="radio" id="rdH" name="reference" value="c"></input>
+        </div>
+    </div>
+    <!--
+    <fieldset>
+        <button onclick="loadModel();"> Draw Object </button>
+    </fieldset>-->
+    <fieldset>
+	    <label for="rdPrimitiveTriangles">TRIANGLES</label> 
+	    <input type="radio" checked="true" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitiveTriangles" value="TRIANGLES">
+        <!--
+	   	<label for="rdPrimitiveLines">LINES</label>
+	    <input type="radio" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitiveLines" value="LINES">
+	   	-->
+        <label for="rdPrimitivePoints">POINTS</label>
+	    <input type="radio" onchange="selectPrimitiveType(this)" name="primitiveType" id="rdPrimitivePoints" value="POINTS">
+    </fieldset>
+    <fieldset>
+        <div>
+            <div>
+                <input id="rgRotateX" type="submit" value="Rotate X" onclick="rotateAxis([1,0,0], this);">
+            
+                <input id="rgRotateY" type="submit" value="Rotate Y" onclick="rotateAxis([0,1,0], this);">
+        
+                <input id="rgRotateZ" type="submit" value="Rotate Z" onclick="rotateAxis([0,0,1], this);">
+            </div>
+        </div>
+        <label for="rgEyeDistance">Eye distance</label>
+        <div>
+            <label>min</label>
+            <input id="rgEyeDistance" type="range" value="50" onchange="changeEyePosition(this);">
+            <label>max</label>
+        </div>
+    </fieldset>
+</body>
+<script type="text/javascript">
+    loadModel();
+</script>
+</html>

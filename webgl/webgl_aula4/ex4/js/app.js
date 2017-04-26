@@ -176,4 +176,3 @@ function changeEyePosition(source){
     translation[14] = -source.value * 0.1;
     drawComponents();
 }
-
