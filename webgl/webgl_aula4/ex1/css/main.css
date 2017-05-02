@@ -1,2 +1,30 @@
 canvas {border: 2px dotted blue;}
 fieldset {width: 575px;}
+
+input[type="range"]{
+	background-color:#EEFFEE
+}
+
+.lfieldset {
+	width: 370px;
+}
+
+.dualpage {
+	width: 1024px;
+	height: 768px;
+	background-color: #FFFFFF;
+}
+
+.page1 {
+	width: 620px;
+	height: 768px;
+	background-color: #FFFFFF;
+	float:left;
+}
+
+.page2 {
+	width: 400px;
+	height: 768px;
+	background-color: #EEFFEE;
+	float:left;
+}
