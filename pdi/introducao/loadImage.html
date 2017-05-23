@@ -1,0 +1,107 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">         
+        <title>Como Carregar uma imagem no Canvas - Sem Tratamento Especial</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script type="text/javascript" src="pditools.js"></script>
+        <script>
+            var pdiCtx = null;
+
+            function getGLContext(){
+                var canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                pdiCtx = pditools.createCPUContext(context);
+                return context;
+            }
+
+            function loadImage(){
+                var path = document.getElementById("imgSrc").value;
+                
+                var img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = path;
+                
+                img.onload = function(){
+                    var backCanvas = document.createElement("canvas");
+                    backCanvas.width = img.width;
+                    backCanvas.height = img.height;
+                    var backContext = backCanvas.getContext("2d");
+                    var backData = backContext.getImageData(0, 0, backCanvas.width, backCanvas.height);                    
+                    backContext.drawImage(img, 0, 0);
+                    
+                    var imgDt = context.createImageData(backContext.canvas.width, backContext.canvas.height);
+                    
+                    
+                    var backImgDt = backContext.getImageData(0, 0, backCanvas.width, backCanvas.height);
+                    var max = backContext.canvas.width * backContext.canvas.height * 4; 
+                    for (var i = 0; i < max; i = i + 4) {  
+                        imgDt.data[i] = backImgDt.data[i];
+                        imgDt.data[i+1] = backImgDt.data[i+1];
+                        imgDt.data[i+2] = backImgDt.data[i+2];
+                        imgDt.data[i+3] = backImgDt.data[i+3];
+                    }
+                    backContext.putImageData(imgDt, 0, 0);
+                    context.drawImage(backCanvas, 0, 0, backCanvas.width, backCanvas.height, 0, 0, context.canvas.width, context.canvas.height);
+                }
+            }
+
+            function applySobel() {
+                var img1 = context.createImageData(context.canvas.width, context.canvas.height);
+                var img2 = context.createImageData(context.canvas.width, context.canvas.height);
+
+
+                var imgDt = context.getImageData(0,0, context.canvas.width, context.canvas.height);
+
+                img1.data.set(imgDt.data);
+                img2.data.set(imgDt.data);
+
+                pdiCtx.grayScale(img1);
+                pdiCtx.grayScale(img2);
+
+                pdiCtx.applyMask(img1, [[-1.0, 0.0, 1.0], [-2, 0, 2], [-1.0, 0.0, 1.0]], 3, 3);
+
+                pdiCtx.applyMask(img2, [[-1.0, -2.0, -1.0], [0.0, 0.0, 0.0], [1.0, 2.0, 1.0]], 3, 3);
+
+                pdiCtx.op2(imgDt, img1, img2, function(ch, opn1, opn2, value){
+                    if (ch != 3){
+                        return Math.sqrt(opn1 * opn1 + opn2 * opn2);
+                    } else {
+                        return value;
+                    }
+                });
+
+                pdiCtx.replicateChannel(imgDt);
+                context.putImageData(imgDt, 0, 0);
+            }
+
+            function applyGray(){
+                var imgDt = context.getImageData(0,0, context.canvas.width, context.canvas.height);
+                 pdiCtx.grayScale(imgDt);
+                 context.putImageData(imgDt, 0, 0);
+            }
+
+        </script>
+    </head>     
+    <body onload="getGLContext();">
+        <h1>Curso de Computação Gráfica - Introdução</h1>         
+        <p>     Imagens Digitais                 </p>     
+        <canvas id="myCanvas" width="640" height="480">
+        ...
+        </canvas>
+        <fieldset>
+        <label for="imgSrc">Imagens</label>
+        <select id="imgSrc">
+            <option value="img/img1.jpg"> Lago </option>
+            <option value="img/img2.jpg"> Livros  </option>
+            <option value="img/tucano.jpg"> Tucano  </option>
+            <option value="img/img3.jpg"> Bike  </option>
+        </select>
+            <button onclick="loadImage()">Load Image</button>
+            <button onclick="applySobel()">Sobel</button>
+            <button onclick="applyGray()">Gray Scale</button>
+        </fieldset>
+    </body> 
+</html> 

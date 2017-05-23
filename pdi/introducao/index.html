@@ -1,0 +1,63 @@
+<!DOCTYPE html> 
+<html lang="en">
+    <head>         
+        <meta charset="utf-8">         
+        <title>Hello World</title>
+        <style type="text/css">
+            canvas {border: 2px dotted blue;}
+        </style>
+        <script language="JavaScript" src="pditools.js"></script>
+        <script>
+            var pdiCtx = null;
+
+            function getGLContext(){
+                var canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                pdiCtx = pditools.createCPUContext(context);
+                //  updateDraw();
+                //                requestAnimationFrame(updateDraw);
+                return context;
+            }
+            
+            function updateDraw(background) {
+                var imgDt = context.getImageData(0,0,500,500);
+                for (var y = 0; y < 500; y++){
+                    for(var x = 0; x < 500; x++){
+                        pdiCtx.setPixel(imgDt, x, y, background)
+                    }
+                }
+                try{
+                   context.putImageData(imgDt, 0, 0);
+                } catch(e){
+                   alert(e);		
+                }
+            }
+
+            function drawRed(){
+                updateDraw([255, 0.0, 0.0, 255]);
+            }
+
+            function drawBlue(){
+                updateDraw([0, 0, 255, 255]);
+            }
+    
+            function drawGreen() {
+                updateDraw([0, 255, 0, 255]);
+            }
+            
+        </script>
+    </head>     
+    <body onload="getGLContext();">
+        <h1>Curso de Computação Gráfica - Introdução</h1>         
+        <p>     Imagens Digitais                 </p>     
+        <canvas id="myCanvas" width="500" height="500">
+        ...
+        </canvas>
+        <button onclick="drawRed();">RED</button>
+        <button onclick="drawGreen();">GREEN</button>
+        <button onclick="drawBlue();">BLUE</button>
+        <div id="status">
+            
+        </div>
+    </body> 
+</html> 
